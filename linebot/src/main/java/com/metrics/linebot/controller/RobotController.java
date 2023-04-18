@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class RobotController {
 
-	@Value("${line.bot.channel-serect}")
+	@Value("${line.bot.channel-secret}")
 	private String LINE_SECRET;
 
 	@Autowired
