@@ -24,9 +24,6 @@ import com.metrics.linebot.utils.AuthChecker;
 @RestController
 public class RobotController {
 
-	@Autowired
-	private HttpServletRequest httpServletRequest;
-
 	
 	@GetMapping("/test")
 	public ResponseEntity test() {
@@ -38,8 +35,8 @@ public class RobotController {
 		System.out.println(message);
 	}
 
-	@PostMapping("/messaging")
-	public ResponseEntity messagingAPI(@RequestHeader("X-Line-Signature") String X_Line_Signature,
+	@PostMapping("/replyMessaging")
+	public ResponseEntity replyAPI(@RequestHeader("X-Line-Signature") String X_Line_Signature,
 			@RequestBody String requestBody) throws UnsupportedEncodingException, IOException {
 		AuthChecker authChecker = new AuthChecker();
 		MessageHandler messageHandler = new MessageHandler();
@@ -50,13 +47,25 @@ public class RobotController {
 			JSONObject object = new JSONObject(requestBody);
 			for (int i = 0; i < object.getJSONArray("events").length(); i++) {
 				if (object.getJSONArray("events").getJSONObject(i).getString("type").equals("message")) {
-					messageHandler.doAction(object.getJSONArray("events").getJSONObject(i));
+					messageHandler.doReply(object.getJSONArray("events").getJSONObject(i), "reply");
 				}
 			}
 			return new ResponseEntity<String>("OK", HttpStatus.OK);
 		}
 		System.out.println("驗證不通過");
 		return new ResponseEntity<String>("Not line platform", HttpStatus.BAD_GATEWAY);
+	}
+	
+	@PostMapping("/pushMessage")
+	public ResponseEntity pushAPI(@RequestBody String userId, @RequestBody String type, @RequestBody String message) {
+		MessageHandler messageHandler =new MessageHandler();
+		
+		try {
+			messageHandler.doPush(userId, type, message);
+			return new ResponseEntity<String>("OK", HttpStatus.OK);
+		} catch(Exception e) {
+			return new ResponseEntity<String>("Not line platform", HttpStatus.BAD_GATEWAY);
+		}
 	}
 
 }

@@ -5,6 +5,7 @@ import java.util.Properties;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Component;
 
 import com.metrics.linebot.utils.PropertiesReader;
 
@@ -16,60 +17,75 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
+@Component
 public class MessageHandler {
 
 	private OkHttpClient client = new OkHttpClient();
 	Properties prop = PropertiesReader.getProperties();
 	String LINE_TOKEN = prop.getProperty("line.bot.channel-token");
+	
 
-	public void doAction(JSONObject event) {
+	public void doReply(JSONObject event, String type) {
 		switch (event.getJSONObject("message").getString("type")) {
 			case "text":
 				if (event.getJSONObject("message").getString("text").contains("停止")) {
-					text(event.getString("replyToken"), "AlertSystem will stop alert message...");
+					text(event.getString("replyToken"), type, "AlertSystem will stop alert message...");
 				} else if (event.getJSONObject("message").getString("text").contains("轉傳")) {
-					text(event.getString("replyToken"), "AlertSystem will forward alert message...");
+					text(event.getString("replyToken"), type, "AlertSystem will forward alert message...");
+				} else {
+					text(event.getString("replyToken"), type, "Please respond in accordance to guidelines...");
 				}
 				break;
 			default:
-				text(event.getString("replyToken"), "本系統僅接受文字訊息");
+				text(event.getString("replyToken"), type, "AlertSystem only accepts text message...");
 				break;
 		}
 	}
+	
+	public void doPush(String userId, String type, String text) {
+		text(userId, type, text);
+	}
 
-	private void text(String replyToken, String text) {
+	private void text(String receipient, String type, String text) {
 		JSONObject body = new JSONObject();
 		JSONArray messages = new JSONArray();
 		JSONObject message = new JSONObject();
 		message.put("type", "text");
 		message.put("text", text);
 		messages.put(message);
-		body.put("replyToken", replyToken);
+		
+		if("reply".equals(type)) {
+			body.put("replyToken", receipient);
+		} else if("push".equals(type)) {
+			body.put("to", receipient);
+		} else if("muti".equals(type)) {
+			String[] receipients = receipient.split(",");
+			body.put("to", receipients);
+		}
+		
 		body.put("messages", messages);
-		sendLinePlatform(body);
+		sendLinePlatform(body, type);
 	}
 
-	private void sticker(String replyToken, String packageId, String stickerId) {
-		JSONObject body = new JSONObject();
-		JSONArray messages = new JSONArray();
-		JSONObject message = new JSONObject();
-		message.put("type", "sticker");
-		message.put("packageId", packageId);
-		message.put("stickerId", stickerId);
-		messages.put(message);
-		body.put("replyToken", replyToken);
-		body.put("messages", messages);
-		sendLinePlatform(body);
-	}
-
-	public void sendLinePlatform(JSONObject json) {
-		Request request = new Request.Builder().url("https://api.line.me/v2/bot/message/reply")
+	public void sendLinePlatform(JSONObject json, String type) {
+		
+		String url = null;
+		if("reply".equals(type)) {
+			url = "https://api.line.me/v2/bot/message/reply";
+		} else if("push".equals(type)) {
+			url = "https://api.line.me/v2/bot/message/push";
+		} else if("muti".equals(type)) {
+			url = "https://api.line.me/v2/bot/message/multicast";
+		}
+		
+		Request request = new Request.Builder().url(url)
 				.header("Authorization", "Bearer {" + LINE_TOKEN + "}")
 				.post(RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json.toString())).build();
 		client.newCall(request).enqueue((Callback) new Callback() {
 
 			public void onResponse(Call call, Response response) throws IOException {
 				System.out.println(response.body());
+				response.close();
 			}
 
 			public void onFailure(Call call, IOException e) {

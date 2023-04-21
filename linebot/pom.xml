@@ -70,11 +70,6 @@
         
         <!---->
         <dependency>
-    		<groupId>com.linecorp.bot</groupId>
-    		<artifactId>line-bot-model</artifactId>
-    		<version>4.3.0</version>
-		</dependency>
-        <dependency>
 			<groupId>com.linecorp.bot</groupId>
 			<artifactId>line-bot-spring-boot</artifactId>
 			<version>4.3.0</version>
@@ -94,7 +89,6 @@
     		<artifactId>okhttp</artifactId>
     	</dependency>
 
-        
 	</dependencies>
 	
 	

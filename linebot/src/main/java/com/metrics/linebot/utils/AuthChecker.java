@@ -9,8 +9,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.springframework.stereotype.Component;
 
-
+@Component
 public class AuthChecker {
 
 	Properties prop = PropertiesReader.getProperties();  
