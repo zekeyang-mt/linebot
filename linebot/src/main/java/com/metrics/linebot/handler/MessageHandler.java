@@ -28,10 +28,12 @@ public class MessageHandler {
 	public void doReply(JSONObject event, String type) {
 		switch (event.getJSONObject("message").getString("type")) {
 			case "text":
-				if (event.getJSONObject("message").getString("text").contains("停止")) {
-					text(event.getString("replyToken"), type, "AlertSystem will stop alert message...");
+				if (event.getJSONObject("message").getString("text").contains("關閉")) {
+					text(event.getString("replyToken"), type, "AlertSystem will close alert message...");
+					// call alert api to stop sending message
 				} else if (event.getJSONObject("message").getString("text").contains("轉傳")) {
 					text(event.getString("replyToken"), type, "AlertSystem will forward alert message...");
+					// call alert api to forward message
 				} else {
 					text(event.getString("replyToken"), type, "Please respond in accordance to guidelines...");
 				}

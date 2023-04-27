@@ -20,7 +20,11 @@ public class LinebotApplication {
 		
 		/*
 		RobotController rController = new RobotController();
-		rController.pushAPI("U1ed6ab0ea07cdca3d199178499d4741d", "push", "測試訊息_1314");
+		rController.pushAPI("U1ed6ab0ea07cdca3d199178499d4741d", "push", "重大突發金融事件通報_檢測簡訊({date}) :\n"
+				+ "EDM {rule_name}目前報價為{last_price}，\n"
+				+ "請檢核是否正確。\n"
+				+ "如果想把通報關掉請回復 關閉_{alert_id}。\n"
+				+ "如果想轉傳請回復 轉傳_{alert_id}。");
 		*/
 	}
 
